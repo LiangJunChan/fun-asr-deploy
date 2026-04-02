@@ -37,7 +37,7 @@ source .venv/bin/activate      # macOS/Linux
 ### 3. 安装依赖
 
 ```bash
-pip install funasr uvicorn fastapi python-multipart
+pip install -r requirements.txt
 ```
 
 > 如果使用 Apple Silicon Mac，遇到 torch 安装问题可参考：[PyTorch Apple Silicon 安装指南](https://pytorch.org/get-started/locally/)
