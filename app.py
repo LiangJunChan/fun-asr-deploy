@@ -14,19 +14,35 @@ from funasr import AutoModel
 
 # 模型 ID (paraformer large, NANO模型当前不可用)
 MODEL_ID = "paraformer"
+# 标点恢复模型
+PUNC_MODEL = "ct-punc"
 
 # 全局模型实例
 model = None
+punc_enabled = False
 
 
 def init_model():
-    """初始化 ASR 模型"""
-    global model
+    """初始化 ASR 模型 + 标点恢复模型"""
+    global model, punc_enabled
     if model is None:
-        model = AutoModel(
-            model=MODEL_ID,
-            device="cpu",
-        )
+        try:
+            # 尝试加载 ASR + 标点恢复联合模型
+            model = AutoModel(
+                model=MODEL_ID,
+                punc_model=PUNC_MODEL,
+                device="cpu",
+            )
+            punc_enabled = True
+            print(f"ASR + 标点恢复模型加载成功")
+        except Exception as e:
+            print(f"标点模型加载失败，使用纯ASR模式: {e}")
+            # 回退到纯 ASR
+            model = AutoModel(
+                model=MODEL_ID,
+                device="cpu",
+            )
+            punc_enabled = False
     return model
 
 
@@ -104,6 +120,7 @@ async def recognize_speech(file: UploadFile = File(...)):
             "success": True,
             "text": text,
             "filename": filename,
+            "punctuation": punc_enabled,
         }
 
     except Exception as e:
@@ -117,7 +134,7 @@ async def recognize_speech(file: UploadFile = File(...)):
 @app.get("/health")
 async def health_check():
     """健康检查接口"""
-    return {"status": "ok", "model": MODEL_ID}
+    return {"status": "ok", "model": MODEL_ID, "punctuation": punc_enabled}
 
 
 if __name__ == "__main__":
