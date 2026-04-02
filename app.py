@@ -99,13 +99,12 @@ async def recognize_speech(file: UploadFile = File(...)):
     try:
         # 执行识别
         result = model.generate(input=tmp_path)
-        print(f"原始结果: {result}")
+        print(f"ASR原始结果: {result}")
 
         # 解析结果 - generate 返回 list，每项是 dict 或字符串
         if result and len(result) > 0:
             item = result[0]
             if isinstance(item, dict):
-                # 可能返回 {"text": "..."} 或 {"keys": [...], "values": [...]}
                 text = item.get("text", "")
                 if not text and "keys" in item:
                     text = item["keys"][0] if item["keys"] else ""
@@ -115,6 +114,20 @@ async def recognize_speech(file: UploadFile = File(...)):
                 text = str(item)
         else:
             text = ""
+
+        # 标点恢复（Fun-ASR的非VAD路径不会自动调用标点模型，需手动串联）
+        if punc_enabled and text.strip():
+            try:
+                punc_res = model.inference(
+                    text,
+                    model=model.punc_model,
+                    kwargs=model.punc_kwargs,
+                )
+                print(f"标点恢复结果: {punc_res}")
+                if punc_res and len(punc_res) > 0:
+                    text = punc_res[0].get("text", text)
+            except Exception as punc_err:
+                print(f"标点恢复失败: {punc_err}")
 
         return {
             "success": True,
