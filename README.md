@@ -1,5 +1,14 @@
 # 🎙️ Fun-ASR 本地语音识别服务
 
+> ⚠️ **此仓库已归档，代码已迁移整合到主项目**
+>
+> 最新代码请访问：[ai-short-video-script/asr/](https://github.com/LiangJunChan/ai-short-video-script/tree/main/asr)
+>
+> 整合为 Monorepo 后提供更完善的开发体验，包含：
+> - `Makefile` 一键启动所有服务
+> - `docker-compose.yml` 统一编排部署
+> - 与后端、前端统一管理
+
 基于阿里巴巴 **Fun-ASR** 框架的本地语音识别 HTTP 服务，支持 **ASR 自动语音识别 + 标点恢复** 联合推理，开箱即用。
 
 ## ✨ 功能特性
